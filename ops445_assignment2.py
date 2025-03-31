@@ -15,8 +15,19 @@ def valid_path (path):
         return False
     ...
 
+def backup_info (path):
+    """
+    Displays statistics of the backup operation to be performed on path.
+    """
+    df_return = os.popen(f'du -sh {path}')
+    backup_size = df_return.read()
+    print(f"Total size of files to backup: {backup_size}")
+    ...
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("path", help="path of folder or file to backup")
     args = parser.parse_args()
+
+    backup_info (args.path)
     ...
