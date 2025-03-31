@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import argparse
 
 def valid_path (path):
     """
@@ -12,4 +13,10 @@ def valid_path (path):
     else:
         print("The path you chose does not exist. Please check that the path is correct.")
         return False
+    ...
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", help="path of folder or file to backup")
+    args = parser.parse_args()
     ...
