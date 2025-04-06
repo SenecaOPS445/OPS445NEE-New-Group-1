@@ -42,6 +42,7 @@ def compress_backup(source_path, backup_path, format):
     valid_path(source_path)
     shutil.make_archive(backup_path, format, source_path)
 
+
 # Example usage
 if __name__ == "__main__":
     # Variables for the paths
