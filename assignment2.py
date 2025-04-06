@@ -1,6 +1,19 @@
 import shutil
 import os
 import sys
+import argparse
+
+def valid_path (path):
+    """
+    Returns True if the path is valid/exists, returns False 
+    and prints an error message otherwise.
+    """
+    if os.path.exists(path):
+        return True
+    else:
+        print("The path you chose does not exist. Please check that the path is correct.")
+        return False
+    ...
 
 # Function that creates a backup of a specified file/directory
 def create_backup(source_path, backup_path):
