@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import shutil
 import os
 import argparse
@@ -39,10 +41,14 @@ def create_backup(source_path, backup_path):
 # Example usage
 if __name__ == "__main__":
     # Variables for the paths
-    source_path = "/home/ahassanzadeh-langrud/Desktop/INFO.png"  # Replace with actual source
-    backup_path = "/home/ahassanzadeh-langrud/Pictures"          # Replace with your backup directory or file
+    parser = argparse.ArgumentParser(description="Backup tool with time tracking")
+    parser.add_argument("source", help="Path to source file/directory")
+    parser.add_argument("destination", help="Backup destination directory")
+    parser.add_argument("--info", action="store_true", help="Show backup info only")
 
-    # Creates a backup
-    create_backup(source_path, backup_path)
+    args = parser.parse_args()
+
+    create_backup(args.source, args.destination)
+
 
  
