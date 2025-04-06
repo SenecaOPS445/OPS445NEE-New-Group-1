@@ -1,6 +1,5 @@
 import shutil
 import os
-import sys
 import argparse
 
 def valid_path (path):
@@ -67,31 +66,9 @@ def restore_backup(backup_path, restore_path):
 
 # Example usage
 if __name__ == "__main__":
+    # Variables for the paths
+    source_path = "/home/ahassanzadeh-langrud/Desktop/INFO.png"  # Replace with actual source
+    backup_path = "/home/ahassanzadeh-langrud/Pictures"          # Replace with your backup directory or file
 
-    if len(sys.argv) < 2:
-        print("Usage:")
-        print("  Backup: python assignment2.py backup <source> <destination>")
-        print("  Restore: python assignment2.py restore <backup> <destination>")
-        sys.exit(1)
-
-    command = sys.argv[1].lower()
-
-    if command == "backup":
-        if len(sys.argv) != 4:
-            print("Error: Backup requires source and destination paths")
-            print("Usage: python assignment2.py backup <source> <destination>")
-            sys.exit(1)
-        create_backup(sys.argv[2], sys.argv[3])
-
-    elif command == "restore":
-        if len(sys.argv) != 4:
-            print("Error: Restore requires backup and destination paths")
-            print("Usage: python assignment2.py restore <backup> <destination>")
-            sys.exit(1)
-        restore_backup(sys.argv[2], sys.argv[3])
-
-    else:
-        print(f"Error: Unknown command '{command}'")
-        print("Available commands: backup, restore")
-        sys.exit(1)
- 
+    # Creates a backup
+    create_backup(source_path, backup_path)
