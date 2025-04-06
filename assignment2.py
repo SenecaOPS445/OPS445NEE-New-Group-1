@@ -6,14 +6,14 @@ import argparse
 
 def valid_path (path):
     """
-    Returns True if the path is valid/exists, returns False 
-    and prints an error message otherwise.
+    Returns True if the path is valid/exists, 
+    prints error/help message and exits the program otherwise.
     """
     if os.path.exists(path):
         return True
     else:
-        print("The path you chose does not exist. Please check that the path is correct.")
-        return False
+        print(f"Source path {path} does not exist! Please check that you entered the path correctly.")
+        exit()
     ...
 
 # Function that creates a backup of a specified file/directory
@@ -37,6 +37,10 @@ def create_backup(source_path, backup_path):
     else:
         print(f"Invalid source path: {source_path}")
 
+# Backup specified file/directory with compression
+def compress_backup(source_path, backup_path, format):
+    valid_path(source_path)
+    shutil.make_archive(backup_path, format, source_path)
 
 # Example usage
 if __name__ == "__main__":
@@ -44,11 +48,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Backup tool with time tracking")
     parser.add_argument("source", help="Path to source file/directory")
     parser.add_argument("destination", help="Backup destination directory")
+    parser.add_argument("--compression_format", "-f", default=None, help="Compression format. Default is no compression.\n"
+                        "options: zip, tar, gztar, bztar, xztar")
     parser.add_argument("--info", action="store_true", help="Show backup info only")
 
     args = parser.parse_args()
 
-    create_backup(args.source, args.destination)
+    if args.compression_format == None:
+        create_backup(args.source, args.destination)
+    else:
+        compress_backup(args.source, args.destination, args.compression_format)
 
 
  
