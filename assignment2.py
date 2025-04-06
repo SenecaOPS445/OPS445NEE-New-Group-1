@@ -42,6 +42,16 @@ def restore_backup(backup_path, restore_path):
         print(f"Backup path {backup_path} does not exist!")
         return False
 
+    # Checking if the backup is a compressed archive
+    if any(backup_path.endswith(ext) for ext in ['.zip', '.tar', '.gz', '.bz2', '.xz', '.tgz', '.tbz2', '.txz']):
+        try:
+            shutil.unpack_archive(backup_path, restore_path)
+            print(f"Compressed backup extracted to: {restore_path}")
+            return True
+        except Exception as e:
+            print(f"Failed to extract compressed backup: {e}")
+            return False
+    
     # If restoring a directory
     if os.path.isdir(backup_path):
         # Remove existing directory if it exists
