@@ -35,6 +35,34 @@ def create_backup(source_path, backup_path):
     else:
         print(f"Invalid source path: {source_path}")
 
+#Function that restores a backup from the specified path
+def restore_backup(backup_path, restore_path):
+    # Check if backup exists
+    if not os.path.exists(backup_path):
+        print(f"Backup path {backup_path} does not exist!")
+        return False
+
+    # If restoring a directory
+    if os.path.isdir(backup_path):
+        # Remove existing directory if it exists
+        if os.path.exists(restore_path):
+            shutil.rmtree(restore_path)
+        shutil.copytree(backup_path, restore_path)
+        print(f"Directory restored to: {restore_path}")
+        return True
+
+    # If restoring a file
+    elif os.path.isfile(backup_path):
+        # Ensure parent directory exists
+        os.makedirs(os.path.dirname(restore_path), exist_ok=True)
+        shutil.copy2(backup_path, restore_path)
+        print(f"File restored to: {restore_path}")
+        return True
+
+    else:
+        print(f"Invalid backup path: {backup_path}")
+        return False
+
 
 # Example usage
 if __name__ == "__main__":
@@ -44,5 +72,3 @@ if __name__ == "__main__":
 
     # Creates a backup
     create_backup(source_path, backup_path)
-
- 
