@@ -4,6 +4,7 @@ import shutil
 import os
 import argparse
 
+
 def valid_path (path):
     """
     Returns True if the path is valid/exists, 
