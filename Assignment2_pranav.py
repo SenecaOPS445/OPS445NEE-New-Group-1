@@ -71,20 +71,20 @@ def create_backup(source_path, backup_path):
         return False
 
     # Create timestamped backup path
-    backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}"
-    full_backup_path = os.path.join(backup_path, backup_name)
+    backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}" # Creates a timestamped name for the backup folder/file.
+    full_backup_path = os.path.join(backup_path, backup_name) # Full backup path needs to include the created backup file name.
 
-    if not check_disk_space(source_path, full_backup_path):
+    if not check_disk_space(source_path, full_backup_path): # Prevent backup if there is not enough disk space.
         print(f"[{timer.get_iso_timestamp()}] Backup aborted - insufficient space")
         return False
 
     try:
         if os.path.isdir(source_path):
             shutil.copytree(source_path, full_backup_path)
-            operation = "directory"
+            operation = "directory" # Track backup type for metadata.
         else:
             shutil.copy2(source_path, full_backup_path)
-            operation = "file"
+            operation = "file" # Track backup type for metadata.
 
         # Create metadata
         metadata = {
@@ -95,10 +95,10 @@ def create_backup(source_path, backup_path):
             "duration_sec": timer.elapsed()
         }
         
-        with open(f"{full_backup_path}.meta", "w") as f:
+        with open(f"{full_backup_path}.meta", "w") as f: # Drop file containing backup operation stats in the backup directory.
             json.dump(metadata, f, indent=2)
 
-        print(f"[{timer.get_iso_timestamp()}] Backup successful ({timer.elapsed():.1f}s)")
+        print(f"[{timer.get_iso_timestamp()}] Backup successful ({timer.elapsed():.1f}s)") # Confirmation of successful backup.
         print(f"Backup created: {full_backup_path}")
         return True
 
