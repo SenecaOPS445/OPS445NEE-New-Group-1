@@ -25,6 +25,37 @@ class BackupTimer:
         """Return elapsed time in seconds"""
         return (datetime.now() - self.start_time).total_seconds()
 
+def check_disk_space(source, destination, buffer=1.2):
+    """Verify sufficient space exists for backup"""
+    try:
+        # Calculate source size
+        if os.path.isfile(source):
+            needed = os.path.getsize(source)
+        else:
+            needed = sum(os.path.getsize(os.path.join(dirpath, f)) 
+                     for dirpath, _, files in os.walk(source) 
+                     for f in files)
+        
+        # Add buffer
+        needed *= buffer
+        
+        # Check available space
+        free = shutil.disk_usage(os.path.dirname(destination)).free
+        
+        if free > needed:
+            return True
+            
+        # Convert to GB for readable output
+        needed_gb = needed / (1024**3)
+        free_gb = free / (1024**3)
+        
+        print(f"Not enough space! Need {needed_gb:.1f}GB, only {free_gb:.1f}GB free")
+        return False
+        
+    except Exception as e:
+        print(f"Error checking space: {e}")
+        return False
+
 def valid_path (path):
     """
     Returns True if the path is valid/exists, 
@@ -73,6 +104,12 @@ def create_backup(source_path, backup_path):
     timer = BackupTimer()
     backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}" # Creates a timestamped name for the backup folder/file.
     full_backup_path = os.path.join(backup_path, backup_name) # Full backup path needs to include the created backup file name.
+    
+    # Check disk space.
+    if not check_disk_space(source_path, full_backup_path): # Prevent backup if there is not enough disk space.
+        print(f"[{timer.get_iso_timestamp()}] Backup aborted - insufficient space")
+        return False
+    
     # If the source is a valid directory then it backsup
     if os.path.isdir(source_path):
         # Create the backup by copying the directory to the backup location
@@ -139,6 +176,11 @@ def compress_backup(source_path, backup_path, format):
     backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}"
     full_backup_path = f"{os.path.join(backup_path, backup_name)}"
 
+    # Check disk space
+    if not check_disk_space(source_path, full_backup_path, buffer=1.5):
+        print(f"[{timer.get_iso_timestamp()}] Backup aborted - insufficient space")
+        return False
+    
     try: 
         shutil.make_archive(full_backup_path, format, source_path)
         backup_info(source_path, backup_path, timer)
