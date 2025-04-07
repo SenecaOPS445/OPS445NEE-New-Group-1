@@ -47,8 +47,10 @@ def restore_backup(backup_path, restore_path):
     # If restoring a directory
     if os.path.isdir(backup_path):
         # Remove existing directory if it exists
-        if os.path.exists(restore_path):
-            shutil.rmtree(restore_path)
+
+        # if os.path.exists(restore_path): # Commenting out this block for now.
+        #     shutil.rmtree(restore_path) # We should change this line, it is dangerous and could cause someone to accidentally delete entire directories.
+
         shutil.copytree(backup_path, restore_path)
         print(f"Directory restored to: {restore_path}")
         return True
@@ -79,11 +81,14 @@ if __name__ == "__main__":
     parser.add_argument("destination", help="Backup destination directory")
     parser.add_argument("--compression_format", "-f", default=None, help="Compression format. Default is no compression.\n"
                         "options: zip, tar, gztar, bztar, xztar")
+    parser.add_argument("--restore", "-r", action="store_true", help="restores backup [source] to [destination] instead.")
     parser.add_argument("--info", action="store_true", help="Show backup info only")
 
     args = parser.parse_args()
 
-    if args.compression_format == None:
+    if args.restore == True:
+        restore_backup(args.source, args.destination)
+    elif args.compression_format == None:
         create_backup(args.source, args.destination)
     else:
         compress_backup(args.source, args.destination, args.compression_format)
