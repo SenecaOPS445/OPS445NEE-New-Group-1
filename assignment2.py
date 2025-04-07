@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
-import shutil
-import os
-import argparse
-from datetime import datetime
-import json
+import shutil # Used for high-level file operations, copying directory trees, arching, unarchiving.
+import os 
+import argparse # Parsing command-line args
+from datetime import datetime # Time related operations for timestamping.
+import json # Formatting
 
 class BackupTimer:
     """
     Used to create timestamps on backups as well as time taken to create backup operation metadata records.
     """
     def __init__(self):
-        self.start_time = datetime.now()
+        self.start_time = datetime.now() # Start the timer by recording time at object creation.
     
     def get_timestamp(self):
         """Return current timestamp in YYYYMMDD_HHMMSS format"""
@@ -23,21 +23,21 @@ class BackupTimer:
     
     def elapsed(self):
         """Return elapsed time in seconds"""
-        return (datetime.now() - self.start_time).total_seconds()
+        return (datetime.now() - self.start_time).total_seconds() # Difference between time this function is called and when the BackupTimer object was created.
 
 def check_disk_space(source, destination, buffer=1.2):
     """Verify sufficient space exists for backup"""
     try:
         # Calculate source size
         if os.path.isfile(source):
-            needed = os.path.getsize(source)
+            needed = os.path.getsize(source) # Simple for single file
         else:
-            needed = sum(os.path.getsize(os.path.join(dirpath, f)) 
-                     for dirpath, _, files in os.walk(source) 
+            needed = sum(os.path.getsize(os.path.join(dirpath, f)) # Take the sum of sizes of every file in the folder
+                     for dirpath, _, files in os.walk(source) # Walks through directory structure.
                      for f in files)
         
         # Add buffer
-        needed *= buffer
+        needed *= buffer # 1.2 buffer gives 20% more than the needed amount of disk space.
         
         # Check available space
         free = shutil.disk_usage(os.path.dirname(destination)).free
@@ -46,7 +46,7 @@ def check_disk_space(source, destination, buffer=1.2):
             return True
             
         # Convert to GB for readable output
-        needed_gb = needed / (1024**3)
+        needed_gb = needed / (1024**3) # 1024 raised to 3 is the number of bytes in a GB. So converts bytes to GB requirement.
         free_gb = free / (1024**3)
         
         print(f"Not enough space! Need {needed_gb:.1f}GB, only {free_gb:.1f}GB free")
@@ -70,10 +70,10 @@ def valid_path (path):
 def backup_info(source_path, backup_path, timer):
     """
     Creates metadata file for a given backup operation. 
-    File is dropped in the backup folder.
+    File is dropped alongside the backup folder.
     """
     # timer = BackupTimer() # Timer object for tracking time stats.
-     # Create timestamped backup path
+    # Create timestamped backup path
     backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}" # Creates a timestamped name for the backup folder/file.
     full_backup_path = os.path.join(backup_path, backup_name) # Full backup path needs to include the created backup file name.
 
@@ -92,7 +92,7 @@ def backup_info(source_path, backup_path, timer):
     }
     
     with open(f"{full_backup_path}.meta", "w") as f: # Drop file containing backup operation stats with the backup directory.
-        json.dump(metadata, f, indent=2)
+        json.dump(metadata, f, indent=2) # json for formatting
 
 
 # Function that creates a backup of a specified file/directory
@@ -135,17 +135,17 @@ def restore_backup(backup_path, restore_path):
     # Checking if the backup is a compressed archive
     if any(backup_path.endswith(ext) for ext in ['.zip', '.tar', '.gz', '.bz2', '.xz', '.tgz', '.tbz2', '.txz']):
         try:
-            shutil.unpack_archive(backup_path, restore_path)
+            shutil.unpack_archive(backup_path, restore_path) # automatically unpacks archive.
             print(f"Compressed backup extracted to: {restore_path}")
             return True
         except Exception as e:
             print(f"Failed to extract compressed backup: {e}")
             return False
     
-    # If restoring a directory
+    # If restoring a directory 
     try:
         if os.path.isdir(backup_path):
-            shutil.copytree(backup_path, restore_path)
+            shutil.copytree(backup_path, restore_path) # Copy to the restore path.
             print(f"Directory restored to: {restore_path}")
             return True
 
@@ -162,12 +162,12 @@ def restore_backup(backup_path, restore_path):
 
 # Backup specified file/directory with compression
 def compress_backup(source_path, backup_path, format):
-    valid_path(source_path)
+    valid_path(source_path) # Check if path is valid.
     
     # Create timestamped backup path
-    timer = BackupTimer()
-    backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}"
-    full_backup_path = f"{os.path.join(backup_path, backup_name)}"
+    timer = BackupTimer() # Object to track time
+    backup_name = f"{os.path.basename(source_path)}_{timer.get_timestamp()}" # Create backup file name with timestamp.
+    full_backup_path = f"{os.path.join(backup_path, backup_name)}" # Full backup path includes the path + backup name.
 
     # Check disk space
     if not check_disk_space(source_path, full_backup_path, buffer=1.5):
@@ -175,9 +175,9 @@ def compress_backup(source_path, backup_path, format):
         return False
     
     try: 
-        shutil.make_archive(full_backup_path, format, source_path)
-        backup_info(source_path, backup_path, timer)
-        print(f"[{timer.get_iso_timestamp()}] Compressed backup successful ({timer.elapsed():.1f}s)")
+        shutil.make_archive(full_backup_path, format, source_path) # Make the archive
+        backup_info(source_path, backup_path, timer) # Generate metadata
+        print(f"[{timer.get_iso_timestamp()}] Compressed backup successful ({timer.elapsed():.1f}s)") # Show confirmation message
         print(f"Backup created: {full_backup_path}")
     except Exception as e:
         print(f"[{timer.get_iso_timestamp()}] Backup failed: {str(e)}")
@@ -185,7 +185,7 @@ def compress_backup(source_path, backup_path, format):
 
 
 
-# Example usage
+# Main block
 if __name__ == "__main__":
     # Variables for the paths
     parser = argparse.ArgumentParser(description="Backup tool with time tracking")
@@ -198,12 +198,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.restore == True:
-        restore_backup(args.source, args.destination)
-    elif args.compression_format == None:
+    if args.restore == True: # If user specifies --restore/-r option to restore rather than backup
+        restore_backup(args.source, args.destination) # restore
+    elif args.compression_format == None: # plain copy/backup without compression
         create_backup(args.source, args.destination)
     else:
-        compress_backup(args.source, args.destination, args.compression_format)
+        compress_backup(args.source, args.destination, args.compression_format) # Otherwise use compression to create a backup.
 
 
  
