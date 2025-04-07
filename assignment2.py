@@ -130,9 +130,7 @@ def create_backup(source_path, backup_path):
 #Function that restores a backup from the specified path
 def restore_backup(backup_path, restore_path):
     # Check if backup exists
-    if not os.path.exists(backup_path):
-        print(f"Backup path {backup_path} does not exist!")
-        return False
+    valid_path(backup_path)
 
     # Checking if the backup is a compressed archive
     if any(backup_path.endswith(ext) for ext in ['.zip', '.tar', '.gz', '.bz2', '.xz', '.tgz', '.tbz2', '.txz']):
@@ -145,26 +143,21 @@ def restore_backup(backup_path, restore_path):
             return False
     
     # If restoring a directory
-    if os.path.isdir(backup_path):
-        # Remove existing directory if it exists
+    try:
+        if os.path.isdir(backup_path):
+            shutil.copytree(backup_path, restore_path)
+            print(f"Directory restored to: {restore_path}")
+            return True
 
-        # if os.path.exists(restore_path): # Commenting out this block for now.
-        #     shutil.rmtree(restore_path) # We should change this line, it is dangerous and could cause someone to accidentally delete entire directories.
-
-        shutil.copytree(backup_path, restore_path)
-        print(f"Directory restored to: {restore_path}")
-        return True
-
-    # If restoring a file
-    elif os.path.isfile(backup_path):
-        # Ensure parent directory exists
-        os.makedirs(os.path.dirname(restore_path), exist_ok=True)
-        shutil.copy2(backup_path, restore_path)
-        print(f"File restored to: {restore_path}")
-        return True
-
-    else:
-        print(f"Invalid backup path: {backup_path}")
+        # If restoring a file
+        elif os.path.isfile(backup_path):
+            # Ensure parent directory exists
+            os.makedirs(os.path.dirname(restore_path), exist_ok=True)
+            shutil.copy2(backup_path, restore_path)
+            print(f"File restored to: {restore_path}")
+            return True
+    except:
+        print(f"Error: unable to restore backup to {restore_path}. Please check that the path your are restoring to is valid.")
         return False
 
 # Backup specified file/directory with compression
